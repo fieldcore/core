@@ -7,11 +7,14 @@ export type FieldPack = {
     elements: {
         [key: string]: <T extends BaseElement = BaseElement>({
             context,
-            type,
-            subtype,
-            pack,
             ...props
-        }: { context: FieldCoreContextType } & T) => ReactNode;
+        }: { context: FieldCoreContextType } & Partial<T> &
+            Partial<{
+                children: ReactNode[];
+                key: string;
+                value: any;
+                onChange: (value: any) => void;
+            }>) => ReactNode;
     };
     sources: {
         [key: string]: <
@@ -32,12 +35,14 @@ export type FieldPack = {
 
 export type FieldCoreContextType<TData extends object = object> = {
     data: TData;
-    document: BaseElement | null;
     packs: { [key: string]: FieldPack };
+    root: string | null;
+    setData: (path: string, data: any) => void;
 };
 
 export const FieldCoreContext = createContext<FieldCoreContextType>({
     data: {},
-    document: null,
     packs: {},
+    root: null,
+    setData: () => {},
 });

@@ -1,3 +1,4 @@
+import { DataType } from "./data";
 import { BaseElement } from "./elementBase";
 
 export interface BaseSource<TRenderer extends BaseElement = BaseElement> {
@@ -5,6 +6,8 @@ export interface BaseSource<TRenderer extends BaseElement = BaseElement> {
     subtype: string;
     pack: string;
     renderer: TRenderer;
+    root: string;
+    data: DataType;
 }
 
 export function isSource<TSource extends BaseSource = BaseSource>(

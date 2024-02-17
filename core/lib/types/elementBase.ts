@@ -1,10 +1,9 @@
-import { ReactNode } from "react";
+import { BaseSource } from "./sourceBase";
 
 export interface BaseElement {
     type: "element";
     subtype: string;
     pack: string;
-    render: () => ReactNode;
 }
 
 export interface BaseFieldElement<TValue = any> extends BaseElement {
@@ -12,8 +11,9 @@ export interface BaseFieldElement<TValue = any> extends BaseElement {
     default?: TValue;
 }
 
-export interface BaseContainerElement<T extends BaseElement = BaseElement>
-    extends BaseElement {
+export interface BaseContainerElement<
+    T extends BaseElement | BaseSource = BaseElement | BaseSource
+> extends BaseElement {
     children: T[];
 }
 

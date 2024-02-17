@@ -7,6 +7,7 @@ export type DataTypePath<T extends DataType = DataTypeLiteral> = {
     subtype: "path";
     path: string;
     default?: T;
+    relative?: boolean;
 };
 export type DataTypeProcessor<T extends DataType = DataTypeLiteral> = {
     type: "data";

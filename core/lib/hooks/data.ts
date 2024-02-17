@@ -21,7 +21,13 @@ export function parseData(context: FieldCoreContextType, data: DataType): any {
     }
 
     if (isPathDataType(data)) {
-        return get(context.data, data.path, data.default);
+        return get(
+            context.data,
+            data.relative && context.root
+                ? `${context.root}.${data.path}`
+                : data.path,
+            data.default
+        );
     }
 
     if (isProcessorDataType(data)) {
