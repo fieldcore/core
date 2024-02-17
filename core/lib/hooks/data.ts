@@ -11,7 +11,10 @@ import {
 import { useContext, useEffect, useRef, useState } from "react";
 import { parseProcessor } from "./processor";
 
-export function parseData(context: FieldCoreContextType, data: DataType): any {
+export function parseData(
+    context: FieldCoreContextType<any, any>,
+    data: DataType
+): any {
     if (isLiteralDataType<DataTypeLiteral>(data)) {
         return data;
     }
@@ -50,10 +53,10 @@ export function useDataType(data: DataType): any {
     const [output, setOutput] = parseData(context, data);
 
     const prevData = useRef<typeof data>(data);
-    const prevContext = useRef<FieldCoreContextType>(context);
+    const prevContext = useRef<FieldCoreContextType<any, any>>(context);
 
     useEffect(() => {
-        if (isEqual(data, prevData) || isEqual(context, prevContext)) {
+        if (isEqual(data, prevData) && isEqual(context, prevContext)) {
             return;
         }
 
@@ -80,13 +83,14 @@ export function useDataTypes(data: { [key: string]: DataType }): {
     );
 
     const prevData = useRef<typeof data>(data);
-    const prevContext = useRef<FieldCoreContextType>(context);
-
+    const prevContext = useRef<FieldCoreContextType<any, any>>(context);
     useEffect(() => {
-        if (isEqual(data, prevData) || isEqual(context, prevContext)) {
+        if (
+            isEqual(data, prevData.current) &&
+            isEqual(context, prevContext.current)
+        ) {
             return;
         }
-
         prevData.current = data;
         prevContext.current = context;
         setOutput(
@@ -99,6 +103,5 @@ export function useDataTypes(data: { [key: string]: DataType }): {
             )
         );
     }, [data, context]);
-
     return output;
 }

@@ -1,17 +1,16 @@
 import { DataType } from "./data";
-import { BaseElement } from "./elementBase";
 
-export interface BaseSource<TRenderer extends BaseElement = BaseElement> {
+export interface BaseSource<TE, TS> {
     type: "source";
     subtype: string;
     pack: string;
-    renderer: TRenderer;
+    renderer: TE | TS;
     root: string;
     data: DataType;
 }
 
-export function isSource<TSource extends BaseSource = BaseSource>(
-    obj: any
-): obj is TSource {
+export function isSource<
+    TSource extends BaseSource<any, any> = BaseSource<any, any>
+>(obj: any): obj is TSource {
     return obj.type === "source";
 }

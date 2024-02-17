@@ -5,7 +5,7 @@ import { parseData } from "./data";
 
 export function parseProcessor(
     processor: BaseProcessor,
-    context: FieldCoreContextType,
+    context: FieldCoreContextType<any, any>,
     options?: { [key: string]: DataType }
 ): any {
     const parsedOptions = Object.entries(

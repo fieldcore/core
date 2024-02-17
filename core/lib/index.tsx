@@ -1,5 +1,4 @@
-import { omit, set } from "lodash";
-import { Renderable } from "./components/Renderer";
+import { cloneDeep, omit, set } from "lodash";
 import { FieldCoreContext, FieldPack } from "./types/context";
 import {
     DataType,
@@ -23,25 +22,34 @@ import {
     isElement,
     isContainerElement,
     isFieldElement,
+    ElementProps,
 } from "./types/elementBase";
 import { useDataType, useDataTypes, parseData } from "./hooks/data";
 import { parseProcessor } from "./hooks/processor";
+import { MainRenderer } from "./components/Renderer";
 
-export function FieldCore<TData extends object = object>({
+export function FieldCore<
+    TData extends object = object,
+    TElementTypes extends BaseElement<any, any> = BaseElement<any, any>,
+    TSourceTypes extends BaseSource<any, any> = BaseSource<any, any>
+>({
     packs,
     document,
     value,
     onChange,
     ...props
 }: {
-    packs: { [key: string]: FieldPack };
-    document: Renderable;
+    packs: { [key: string]: FieldPack<TElementTypes, TSourceTypes> };
+    document: TElementTypes | TSourceTypes;
     value: TData;
     onChange: (value: TData) => void;
 } & Partial<
-    React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLDivElement>,
-        HTMLDivElement
+    Omit<
+        React.DetailedHTMLProps<
+            React.HTMLAttributes<HTMLDivElement>,
+            HTMLDivElement
+        >,
+        "onChange" | "value"
     >
 >) {
     return (
@@ -56,10 +64,13 @@ export function FieldCore<TData extends object = object>({
                 value={{
                     data: value,
                     packs,
-                    setData: (path, data) => onChange(set(value, path, data)),
+                    setData: (path, data) =>
+                        onChange(set(cloneDeep(value), path, data)),
                     root: null,
                 }}
-            ></FieldCoreContext.Provider>
+            >
+                <MainRenderer item={document} />
+            </FieldCoreContext.Provider>
         </div>
     );
 }
@@ -77,6 +88,7 @@ export type {
     BaseElement,
     BaseContainerElement,
     BaseFieldElement,
+    ElementProps,
 };
 export {
     isArrayDataType,

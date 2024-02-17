@@ -9,9 +9,13 @@ import { get, omit } from "lodash";
 import { useDataType, useDataTypes } from "../hooks/data";
 import { BaseSource, isSource } from "../types/sourceBase";
 
-export type Renderable = BaseElement | BaseSource;
+export type Renderable<TE, TS> = BaseElement<TE, TS> | BaseSource<TE, TS>;
 
-export function ElementRenderer({ element }: { element: BaseElement }) {
+export function ElementRenderer<TE, TS>({
+    element,
+}: {
+    element: BaseElement<TE, TS>;
+}) {
     const context = useContext(FieldCoreContext);
     const _renderer =
         context.packs[element.pack]?.elements[element.subtype] ?? null;
@@ -37,7 +41,7 @@ export function ElementRenderer({ element }: { element: BaseElement }) {
                 >
                     <Renderer context={context} {...parsedProps}>
                         {element.children.map((v, i) => (
-                            <MainRenderer item={v} key={i} />
+                            <MainRenderer<TE, TS> item={v} key={i} />
                         ))}
                     </Renderer>
                 </div>
@@ -59,7 +63,7 @@ export function ElementRenderer({ element }: { element: BaseElement }) {
                         {...parsedProps}
                         key={key}
                         value={get(context.data, key) ?? null}
-                        onChange={(value) => context.setData(key, value)}
+                        onChange={(value: any) => context.setData(key, value)}
                     />
                 </div>
             );
@@ -77,7 +81,11 @@ export function ElementRenderer({ element }: { element: BaseElement }) {
     }
 }
 
-export function SourceRenderer({ source }: { source: BaseSource }) {
+export function SourceRenderer<TE, TS>({
+    source,
+}: {
+    source: BaseSource<TE, TS>;
+}) {
     const context = useContext(FieldCoreContext);
     const _source = context.packs[source.pack]?.sources[source.subtype] ?? null;
     const Source: typeof _source | null = _source as typeof _source | null;
@@ -95,7 +103,7 @@ export function SourceRenderer({ source }: { source: BaseSource }) {
                         i.toString(),
                 }}
             >
-                <MainRenderer item={v} key={i} />
+                <MainRenderer<TE, TS> item={v} key={i} />
             </FieldCoreContext.Provider>
         ));
     } else {
@@ -103,10 +111,10 @@ export function SourceRenderer({ source }: { source: BaseSource }) {
     }
 }
 
-export function MainRenderer({ item }: { item: Renderable }) {
+export function MainRenderer<TE, TS>({ item }: { item: Renderable<TE, TS> }) {
     if (isSource(item)) {
-        return <SourceRenderer source={item} />;
+        return <SourceRenderer<TE, TS> source={item} />;
     } else {
-        return <ElementRenderer element={item} />;
+        return <ElementRenderer<TE, TS> element={item} />;
     }
 }
