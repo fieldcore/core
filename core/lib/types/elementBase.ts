@@ -1,7 +1,10 @@
+import { ReactNode } from "react";
+
 export interface BaseElement {
     type: "element";
     subtype: string;
     pack: string;
+    render: () => ReactNode;
 }
 
 export interface BaseFieldElement<TValue = any> extends BaseElement {
