@@ -12,7 +12,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { parseProcessor } from "./processor";
 
 export function parseData(
-    context: FieldCoreContextType<any, any>,
+    context: FieldCoreContextType<any, any, any>,
     data: DataType
 ): any {
     if (isLiteralDataType<DataTypeLiteral>(data)) {
@@ -24,13 +24,29 @@ export function parseData(
     }
 
     if (isPathDataType(data)) {
-        return get(
-            context.data,
-            data.relative && context.root
-                ? `${context.root}.${data.path}`
-                : data.path,
-            data.default
-        );
+        return data.relative
+            ? data.path.length > 0
+                ? get(
+                      (data.sourced ? context.sourcedData : null) ??
+                          context.data,
+                      (context.root ? context.root + "." : "") + data.path,
+                      data.default
+                  )
+                : context.root
+                ? get(
+                      (data.sourced ? context.sourcedData : null) ??
+                          context.data,
+                      context.root,
+                      data.default
+                  )
+                : (data.sourced ? context.sourcedData : null) ?? context.data
+            : data.path.length > 0
+            ? get(
+                  (data.sourced ? context.sourcedData : null) ?? context.data,
+                  data.path,
+                  data.default
+              )
+            : (data.sourced ? context.sourcedData : null) ?? context.data;
     }
 
     if (isProcessorDataType(data)) {
@@ -50,10 +66,10 @@ export function parseData(
 
 export function useDataType(data: DataType): any {
     const context = useContext(FieldCoreContext);
-    const [output, setOutput] = parseData(context, data);
+    const [output, setOutput] = useState(parseData(context, data));
 
     const prevData = useRef<typeof data>(data);
-    const prevContext = useRef<FieldCoreContextType<any, any>>(context);
+    const prevContext = useRef<FieldCoreContextType<any, any, any>>(context);
 
     useEffect(() => {
         if (isEqual(data, prevData) && isEqual(context, prevContext)) {
@@ -83,7 +99,7 @@ export function useDataTypes(data: { [key: string]: DataType }): {
     );
 
     const prevData = useRef<typeof data>(data);
-    const prevContext = useRef<FieldCoreContextType<any, any>>(context);
+    const prevContext = useRef<FieldCoreContextType<any, any, any>>(context);
     useEffect(() => {
         if (
             isEqual(data, prevData.current) &&

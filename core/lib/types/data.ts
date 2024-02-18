@@ -8,16 +8,23 @@ export type DataTypePath<T extends DataType = DataTypeLiteral> = {
     path: string;
     default?: T;
     relative?: boolean;
+    sourced?: boolean;
 };
-export type DataTypeProcessor<T extends DataType = DataTypeLiteral> = {
+export type DataTypeProcessor<
+    TP extends BaseProcessor,
+    T extends DataType = DataTypeLiteral
+> = {
     type: "data";
     subtype: "processor";
-    processor: BaseProcessor;
-    options?: { [key: string]: DataType };
+    processor: TP;
+    options?: { [key: string]: DataType } | TP["defaultOptions"];
     default?: T;
 };
 export type DataTypeArray<T extends DataType = DataTypeLiteral> = T[];
-export type DataType = DataTypeLiteral | DataTypePath | DataTypeProcessor;
+export type DataType<TP extends BaseProcessor = any> =
+    | DataTypeLiteral
+    | DataTypePath
+    | DataTypeProcessor<TP>;
 
 export function isLiteralDataType<T extends DataTypeLiteral = DataTypeLiteral>(
     obj: any
@@ -32,7 +39,7 @@ export function isPathDataType<T extends DataTypePath = DataTypePath>(
 }
 
 export function isProcessorDataType<
-    T extends DataTypeProcessor = DataTypeProcessor
+    T extends DataTypeProcessor<any> = DataTypeProcessor<any>
 >(obj: any): obj is T {
     return (
         obj.type === "data" &&

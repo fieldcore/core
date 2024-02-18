@@ -30,8 +30,13 @@ import { MainRenderer } from "./components/Renderer";
 
 export function FieldCore<
     TData extends object = object,
-    TElementTypes extends BaseElement<any, any> = BaseElement<any, any>,
-    TSourceTypes extends BaseSource<any, any> = BaseSource<any, any>
+    TElementTypes extends BaseElement<any, any, any> = BaseElement<
+        any,
+        any,
+        any
+    >,
+    TSourceTypes extends BaseSource<any, any, any> = BaseSource<any, any, any>,
+    TProcessorTypes extends BaseProcessor<any> = BaseProcessor<any>
 >({
     packs,
     document,
@@ -39,7 +44,9 @@ export function FieldCore<
     onChange,
     ...props
 }: {
-    packs: { [key: string]: FieldPack<TElementTypes, TSourceTypes> };
+    packs: {
+        [key: string]: FieldPack<TElementTypes, TSourceTypes, TProcessorTypes>;
+    };
     document: TElementTypes | TSourceTypes;
     value: TData;
     onChange: (value: TData) => void;

@@ -8,13 +8,16 @@ import { FieldCoreContext } from "../types/context";
 import { get, omit } from "lodash";
 import { useDataType, useDataTypes } from "../hooks/data";
 import { BaseSource, isSource } from "../types/sourceBase";
+import { BaseProcessor } from "../types/processorBase";
 
-export type Renderable<TE, TS> = BaseElement<TE, TS> | BaseSource<TE, TS>;
+export type Renderable<TE, TS, TP extends BaseProcessor<any>> =
+    | BaseElement<TE, TS, TP>
+    | BaseSource<TE, TS, TP>;
 
-export function ElementRenderer<TE, TS>({
+export function ElementRenderer<TE, TS, TP extends BaseProcessor<any>>({
     element,
 }: {
-    element: BaseElement<TE, TS>;
+    element: BaseElement<TE, TS, TP>;
 }) {
     const context = useContext(FieldCoreContext);
     const _renderer =
@@ -41,7 +44,7 @@ export function ElementRenderer<TE, TS>({
                 >
                     <Renderer context={context} {...parsedProps}>
                         {element.children.map((v, i) => (
-                            <MainRenderer<TE, TS> item={v} key={i} />
+                            <MainRenderer<TE, TS, TP> item={v} key={i} />
                         ))}
                     </Renderer>
                 </div>
@@ -81,17 +84,17 @@ export function ElementRenderer<TE, TS>({
     }
 }
 
-export function SourceRenderer<TE, TS>({
+export function SourceRenderer<TE, TS, TP extends BaseProcessor<any>>({
     source,
 }: {
-    source: BaseSource<TE, TS>;
+    source: BaseSource<TE, TS, TP>;
 }) {
     const context = useContext(FieldCoreContext);
     const _source = context.packs[source.pack]?.sources[source.subtype] ?? null;
     const Source: typeof _source | null = _source as typeof _source | null;
     const data = useDataType(source.data);
     if (Source) {
-        return Source(context, source, data).map((v, i) => (
+        return Source(context, source, data).map((v: any, i) => (
             <FieldCoreContext.Provider
                 value={{
                     ...context,
@@ -101,9 +104,11 @@ export function SourceRenderer<TE, TS>({
                             : source.root) +
                         "." +
                         i.toString(),
+                    sourcedData: v,
                 }}
+                key={i}
             >
-                <MainRenderer<TE, TS> item={v} key={i} />
+                <MainRenderer<TE, TS, TP> item={source.renderer as any} />
             </FieldCoreContext.Provider>
         ));
     } else {
@@ -111,10 +116,14 @@ export function SourceRenderer<TE, TS>({
     }
 }
 
-export function MainRenderer<TE, TS>({ item }: { item: Renderable<TE, TS> }) {
+export function MainRenderer<TE, TS, TP extends BaseProcessor<any>>({
+    item,
+}: {
+    item: Renderable<TE, TS, TP>;
+}) {
     if (isSource(item)) {
-        return <SourceRenderer<TE, TS> source={item} />;
+        return <SourceRenderer<TE, TS, TP> source={item} />;
     } else {
-        return <ElementRenderer<TE, TS> element={item} />;
+        return <ElementRenderer<TE, TS, TP> element={item} />;
     }
 }

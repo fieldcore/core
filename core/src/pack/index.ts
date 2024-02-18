@@ -5,13 +5,23 @@ import {
     TextElementComponent,
 } from "./elements/elements";
 import { ElementTypes } from "./elements/types";
+import { CapitalizeProcessor, Capitalizer } from "./processors";
+import { StringSource, StringSourceGenerator } from "./sources";
 
-export const BasePack: FieldPack<ElementTypes, any> = {
+export const BasePack: FieldPack<
+    ElementTypes,
+    StringSource,
+    CapitalizeProcessor
+> = {
     elements: {
         group: GroupElementComponent,
         text: TextElementComponent,
         field: FieldElementComponent,
     },
-    sources: {},
-    processors: {},
+    sources: {
+        string: StringSourceGenerator as any,
+    },
+    processors: {
+        caps: Capitalizer as any,
+    },
 };

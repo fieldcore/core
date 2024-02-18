@@ -1,14 +1,13 @@
 import { ReactNode, createContext } from "react";
-import { BaseElement } from "./elementBase";
 import { BaseSource } from "./sourceBase";
-import { DataType } from "./data";
+import { BaseProcessor } from "./processorBase";
 
-export type FieldPack<TE, TS> = {
+export type FieldPack<TE, TS, TP extends BaseProcessor<any>> = {
     elements: {
         [key: string]: <T extends TE = any>({
             context,
             ...props
-        }: { context: FieldCoreContextType<TE, TS> } & Partial<T> &
+        }: { context: FieldCoreContextType<TE, TS, TP> } & Partial<T> &
             Partial<{
                 children: ReactNode[];
                 key: string;
@@ -19,13 +18,13 @@ export type FieldPack<TE, TS> = {
     };
     sources: {
         [key: string]: <
-            T extends BaseSource<TE, TS> = BaseSource<TE, TS>,
-            TData extends DataType = DataType
+            T extends BaseSource<TE, TS, TP> = BaseSource<TE, TS, TP>,
+            TData = any
         >(
-            context: FieldCoreContextType<TE, TS>,
+            context: FieldCoreContextType<TE, TS, TP>,
             source: T,
             data: TData
-        ) => BaseElement<TE, TS>[];
+        ) => any[];
     };
     processors: {
         [key: string]: <TOptions extends object = object, TReturn = any>(
@@ -34,14 +33,22 @@ export type FieldPack<TE, TS> = {
     };
 };
 
-export type FieldCoreContextType<TE, TS, TData extends object = object> = {
+export type FieldCoreContextType<
+    TE,
+    TS,
+    TP extends BaseProcessor<any>,
+    TData extends object = object
+> = {
     data: TData;
-    packs: { [key: string]: FieldPack<TE, TS> };
+    sourcedData?: any;
+    packs: { [key: string]: FieldPack<TE, TS, TP> };
     root: string | null;
     setData: (path: string, data: any) => void;
 };
 
-export const FieldCoreContext = createContext<FieldCoreContextType<any, any>>({
+export const FieldCoreContext = createContext<
+    FieldCoreContextType<any, any, any>
+>({
     data: {},
     packs: {},
     root: null,
